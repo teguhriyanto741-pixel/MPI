@@ -1,0 +1,1008 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Misi Gaya Dada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: satu misi per layar. Header sticky berisi enam langkah, panel kaca biru di atas latar grid HUD, animasi perenang sebagai pusat materi. */
+:root{
+  --bg:#031127;
+  --panel:rgba(9,44,98,.62);
+  --line:rgba(98,182,255,.38);
+  --blue:#2e8bff;
+  --sky:#46d2ff;
+  --ice:#e8f6ff;
+  --mute:#a9cdf2;
+  --good:#4fe3a8;
+  --good-bg:rgba(79,227,168,.15);
+  --nudge:#ffae70;
+  --nudge-bg:rgba(255,174,112,.15);
+  --gold:#ffd45c;
+  --f-d:"Exo 2","Trebuchet MS",system-ui,sans-serif;
+  --f-b:"Nunito","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:var(--f-b);font-size:17px;line-height:1.55;color:var(--ice);background:var(--bg);
+  padding-block:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  min-height:100%;position:relative;overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:
+  radial-gradient(900px 520px at 88% -8%,rgba(46,139,255,.38),transparent 62%),
+  radial-gradient(700px 520px at -8% 42%,rgba(70,210,255,.18),transparent 62%),
+  linear-gradient(rgba(98,182,255,.07) 1px,transparent 1px) 0 0/44px 44px,
+  linear-gradient(90deg,rgba(98,182,255,.07) 1px,transparent 1px) 0 0/44px 44px,
+  var(--bg)}
+.bb{position:absolute;bottom:-40px;border-radius:50%;border:2px solid rgba(120,210,255,.35);background:rgba(120,210,255,.06);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-110vh) translateX(24px)}}
+#fx{position:fixed;inset:0;z-index:50;pointer-events:none}
+.pt{position:fixed;width:22px;height:22px;margin:-11px 0 0 -11px;animation:pt .9s ease-out forwards}
+.pt .ic{width:100%;height:100%;fill:var(--gold);stroke:var(--gold)}
+@keyframes pt{from{transform:translate(0,0) scale(.4);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(200deg);opacity:0}}
+.wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
+.ic{width:1.4em;height:1.4em;flex:none;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+button{font-family:inherit}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;padding:10px 0 8px;background:linear-gradient(var(--bg),rgba(3,17,39,.94));border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:8px}
+.brand b{display:flex;align-items:center;gap:10px;font:800 18px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:var(--ice)}
+.brand b .ic{color:var(--sky);width:1.7em;height:1.7em}
+.brand span{font:800 12px var(--f-d);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.st{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px 6px;border-radius:12px;border:1px solid var(--line);background:rgba(14,66,140,.3);color:var(--mute);cursor:pointer;font:800 10.5px var(--f-d);letter-spacing:.04em;text-transform:uppercase;min-width:0}
+.st .ic{width:1.9em;height:1.9em}
+.st span{display:none}
+.st.vis{color:var(--ice);border-color:rgba(98,182,255,.6)}
+.st.on{background:linear-gradient(180deg,#3a9bff,#1d5fe0);color:#fff;border-color:#a8e4ff;box-shadow:0 0 18px rgba(70,210,255,.5)}
+.crumb{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font:800 12px var(--f-d);letter-spacing:.1em;text-transform:uppercase;color:var(--sky)}
+.crumb i{flex:1;height:6px;border-radius:99px;background:rgba(98,182,255,.2);overflow:hidden}
+.crumb i b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--sky));transition:width .5s}
+@media(min-width:560px){.st span{display:block}}
+
+/* slides */
+.slide{padding:22px 0 30px;animation:in .5s both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.kicker{font:800 12px var(--f-d);letter-spacing:.22em;text-transform:uppercase;color:var(--sky)}
+h2{font:800 clamp(28px,5.4vw,42px)/1.1 var(--f-d);margin:4px 0 8px;text-wrap:balance}
+h3{font:800 20px/1.2 var(--f-d);margin:0 0 6px;text-wrap:balance}
+p{margin:0 0 10px}
+.lead{font-size:18px;color:var(--mute);max-width:62ch}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(16px,3vw,26px);backdrop-filter:blur(6px);min-width:0}
+.hud::before,.hud::after{content:"";position:absolute;width:20px;height:20px;border:2px solid var(--sky);pointer-events:none}
+.hud::before{left:-1px;top:-1px;border-right:0;border-bottom:0;border-top-left-radius:20px}
+.hud::after{right:-1px;bottom:-1px;border-left:0;border-top:0;border-bottom-right-radius:20px}
+.btn{font:800 17px var(--f-d);letter-spacing:.03em;min-height:52px;padding:0 22px;border-radius:14px;border:1px solid rgba(168,228,255,.7);background:linear-gradient(180deg,#3a9bff,#1d5fe0);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;box-shadow:0 8px 24px rgba(20,90,230,.45);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(70,210,255,.55),0 10px 26px rgba(20,90,230,.5)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.ghost{background:rgba(46,139,255,.14);border-color:var(--line);color:var(--ice);box-shadow:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.pager{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;margin-top:26px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:rgba(70,210,255,.1);font:800 13px var(--f-d);letter-spacing:.04em;color:var(--ice)}
+
+/* cover */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center}
+.hero>*{min-width:0}
+@media(max-width:820px){.hero{grid-template-columns:1fr}}
+.title{font:800 clamp(52px,12vw,104px)/.92 var(--f-d);margin:8px 0 6px;text-transform:uppercase;background:linear-gradient(180deg,#fff 8%,#8fdcff 52%,#2e8bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(70,210,255,.4))}
+.sub{font:800 clamp(16px,3.2vw,24px) var(--f-d);letter-spacing:.2em;text-transform:uppercase;color:var(--sky);margin-bottom:14px}
+.namebox{margin-top:18px}
+.namebox label{display:block;font:800 14px var(--f-d);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+input[type=text],textarea{font:700 18px var(--f-b);color:var(--ice);background:rgba(3,17,39,.7);border:2px solid var(--line);border-radius:14px;padding:12px 14px;min-height:52px;flex:1;min-width:0;width:100%}
+.row input{width:auto;flex:1 1 180px}
+input::placeholder,textarea::placeholder{color:#6f98c8}
+textarea{resize:vertical;min-height:90px;font-size:17px}
+.heroV{padding:12px}
+.hcue{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 6px 2px}
+.hcue .hk{font:800 12px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.hcue b{font:800 26px var(--f-d);color:var(--sky);letter-spacing:.06em}
+.idl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:22px 0 0}
+.idl div{min-width:0}
+.idl dt{font:800 12px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.idl dd{margin:2px 0 0;font:800 20px var(--f-d);overflow-wrap:anywhere}
+
+/* swimmer */
+.sw{display:block;width:100%;height:auto;border-radius:14px}
+.fig{filter:drop-shadow(0 0 6px rgba(70,210,255,.55))}
+.wv{animation:wv 5s linear infinite}
+@keyframes wv{to{transform:translateX(-160px)}}
+.bubs circle{animation:bub 1.6s ease-in-out infinite;fill:rgba(190,235,255,.35);stroke:#bfeaff}
+.bubs circle:nth-child(2){animation-delay:.4s}
+.bubs circle:nth-child(3){animation-delay:.8s}
+@keyframes bub{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* tujuan */
+.goals{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+@media(max-width:720px){.goals{grid-template-columns:1fr}}
+.goal{display:flex;flex-direction:column;gap:10px;text-align:left;color:var(--ice);cursor:pointer;border:1px solid var(--line);width:100%;font:inherit}
+.goal .gi{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(180deg,rgba(70,210,255,.3),rgba(46,139,255,.15));border:1px solid var(--sky);color:var(--sky)}
+.goal .gi .ic{width:38px;height:38px}
+.goal .more{display:none;padding:10px 12px;border-radius:12px;background:var(--good-bg);border:1px solid var(--good);font-weight:700}
+.goal[aria-expanded=true] .more{display:block;animation:in .35s both}
+.goal .tap{font:800 12px var(--f-d);letter-spacing:.12em;text-transform:uppercase;color:var(--sky)}
+.path{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.path button{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(14,66,140,.35);color:var(--ice);font:800 15px var(--f-d);cursor:pointer;text-align:left}
+.path button:hover{border-color:var(--sky)}
+.path .ic{color:var(--sky);width:1.7em;height:1.7em}
+
+/* materi */
+.mgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-top:16px}
+.mgrid>*{min-width:0}
+@media(max-width:860px){.mgrid{grid-template-columns:1fr}}
+.ch{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;border:2px solid var(--line);background:rgba(14,66,140,.4);color:var(--ice);font:800 15px var(--f-d);cursor:pointer}
+.ch b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(70,210,255,.22);font-size:12px}
+.ch.on{border-color:var(--sky);background:linear-gradient(180deg,#3a9bff,#1d5fe0);box-shadow:0 0 16px rgba(70,210,255,.45)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.desc h3{color:var(--sky)}
+.desc dl{margin:8px 0 0;display:grid;gap:10px}
+.desc dt{display:flex;align-items:center;gap:8px;font:800 13px var(--f-d);letter-spacing:.1em;text-transform:uppercase;color:var(--sky)}
+.desc dd{margin:2px 0 0}
+.kcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:18px}
+.kc{perspective:900px;height:218px;background:none;border:0;padding:0;cursor:pointer;color:var(--ice);min-width:0}
+.kc-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s}
+.kc[aria-pressed=true] .kc-in{transform:rotateY(180deg)}
+.kc-f,.kc-b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+.kc-f{background:linear-gradient(180deg,rgba(46,139,255,.38),rgba(9,44,98,.7))}
+.kc-f .ic{width:52px;height:52px;color:var(--sky)}
+.kc-f b{font:800 22px var(--f-d)}
+.kc-f small{font:800 11px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.kc-b{transform:rotateY(180deg);background:rgba(4,26,61,.92);font-weight:700;font-size:15.5px;line-height:1.4}
+.kc-b b{font:800 15px var(--f-d);color:var(--sky);letter-spacing:.08em;text-transform:uppercase}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.rules div{display:flex;gap:10px;align-items:flex-start;font-weight:700}
+.rules .ic{color:var(--good);width:1.8em;height:1.8em}
+
+/* aktivitas */
+.acts{display:grid;gap:22px;margin-top:16px}
+.scene{position:relative;aspect-ratio:16/10;max-width:100%;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.scene>svg{position:absolute;inset:0;width:100%;height:100%}
+.hs{position:absolute;transform:translate(-50%,-50%);width:clamp(42px,9vw,60px);aspect-ratio:1;border-radius:50%;border:2px solid var(--sky);background:rgba(4,26,61,.86);color:var(--ice);display:grid;place-items:center;cursor:pointer;padding:0;box-shadow:0 0 16px rgba(70,210,255,.7)}
+.hs .ic{width:62%;height:62%}
+.hs::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--sky);animation:ping 1.8s infinite}
+@keyframes ping{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.hs.found{border-color:var(--good);box-shadow:0 0 12px rgba(79,227,168,.55)}
+.hs.found::after{display:none}
+.hs.on{outline:3px solid var(--gold);outline-offset:2px}
+.hs .tk{position:absolute;right:-5px;top:-5px;width:20px;height:20px;border-radius:50%;background:var(--good);color:#032015;display:none;place-items:center}
+.hs.found .tk{display:grid}
+.hs .tk .ic{width:14px;height:14px;stroke-width:4}
+.hl{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font:800 12px var(--f-d);background:rgba(3,17,39,.9);border:1px solid var(--good);padding:2px 8px;border-radius:99px;display:none}
+@media(min-width:620px){.hs.found .hl{display:block}}
+.jrow{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:14px}
+.jrow>*{min-width:0}
+@media(max-width:720px){.jrow{grid-template-columns:1fr}}
+.jinfo{display:flex;gap:14px;align-items:flex-start}
+.jinfo .ji{flex:none;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--sky);background:rgba(70,210,255,.14);color:var(--sky)}
+.jinfo .ji .ic{width:34px;height:34px}
+.stars{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stars .ic{width:30px;height:30px;color:#4d6f9f}
+.stars .ic.on{color:var(--gold);fill:var(--gold)}
+.okmsg{padding:10px 12px;border-radius:12px;background:var(--good-bg);border:1px solid var(--good);font-weight:800;margin-top:8px}
+.darat{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px}
+.darat>*{min-width:0}
+@media(max-width:860px){.darat{grid-template-columns:1fr}}
+.cue{text-align:center;padding:14px;border-radius:16px;background:rgba(4,26,61,.7);border:1px solid var(--sky);margin-bottom:12px}
+.cue b{display:block;font:800 clamp(36px,9vw,56px)/1 var(--f-d);letter-spacing:.08em;color:var(--sky)}
+.cue span{color:var(--mute);font-weight:700}
+.cue.pulse b{animation:pop .45s}
+@keyframes pop{0%{transform:scale(.8);opacity:.4}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.steps-l{margin:0 0 12px;padding-left:20px}
+.steps-l li{margin-bottom:4px}
+.reps{display:flex;gap:8px;margin:10px 0}
+.reps i{flex:1;height:14px;border-radius:99px;background:rgba(98,182,255,.2);transition:background .3s}
+.reps i.on{background:var(--good)}
+
+/* kuis */
+.qhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:14px 0 8px;font:800 14px var(--f-d);letter-spacing:.06em;text-transform:uppercase}
+.qtype{padding:4px 12px;border-radius:99px;background:rgba(70,210,255,.14);border:1px solid var(--line);color:var(--sky)}
+.score{display:inline-flex;gap:6px;align-items:center;color:var(--gold)}
+.score .ic{fill:var(--gold)}
+.bar{height:10px;border-radius:99px;background:rgba(98,182,255,.18);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--sky));border-radius:99px;transition:width .5s}
+.dots{display:flex;gap:6px;margin:10px 0 14px}
+.dots i{flex:1;height:8px;border-radius:4px;background:rgba(98,182,255,.2)}
+.dots i.cur{background:var(--sky);box-shadow:0 0 8px var(--sky)}
+.dots i.g{background:var(--good)}
+.dots i.n{background:var(--nudge)}
+.qicon{width:72px;height:72px;border-radius:20px;display:grid;place-items:center;border:1px solid var(--sky);background:rgba(70,210,255,.14);color:var(--sky);margin-bottom:12px}
+.qicon .ic{width:44px;height:44px}
+.qtext{font:800 clamp(20px,3.6vw,26px)/1.3 var(--f-d);margin:0 0 16px;text-wrap:balance}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.opts:not(.tf){grid-template-columns:1fr}}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;min-height:60px;padding:10px 14px;border-radius:16px;border:2px solid var(--line);background:rgba(14,66,140,.4);color:var(--ice);font:700 17px var(--f-b);cursor:pointer;transition:transform .15s,border-color .2s,background .2s;min-width:0}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--sky)}
+.opt .ol{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(70,210,255,.18);font:800 16px var(--f-d)}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.opt.bad{border-color:var(--nudge);background:var(--nudge-bg);animation:shake .4s}
+.opt:disabled{cursor:default;color:var(--ice)}
+.opts.tf .opt{justify-content:center;font:800 20px var(--f-d);letter-spacing:.06em;text-transform:uppercase;min-height:72px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mcol{display:grid;gap:10px;align-content:start;min-width:0}
+.mi{display:flex;gap:10px;align-items:center;text-align:left;min-height:58px;padding:8px 12px;border-radius:14px;border:2px solid var(--line);background:rgba(14,66,140,.4);color:var(--ice);font:700 15.5px var(--f-b);cursor:pointer;min-width:0;width:100%}
+.mi .ic{color:var(--sky);width:1.7em;height:1.7em}
+.mi.sel{border-color:var(--gold);background:rgba(255,212,92,.14)}
+.mi.done{border-color:var(--good);background:var(--good-bg);cursor:default}
+.mi.shake{animation:shake .4s;border-color:var(--nudge)}
+.pn{margin-left:auto;flex:none;font:800 13px var(--f-d);font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#032015}
+.ordl{display:grid;gap:10px;margin:8px 0 14px}
+.slot{display:flex;gap:12px;align-items:center;min-height:56px;padding:8px 12px;border-radius:14px;border:2px dashed var(--line);background:rgba(4,26,61,.5);color:var(--mute);font:700 16px var(--f-b);text-align:left;cursor:pointer;width:100%}
+.slot .no{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(70,210,255,.18);color:var(--ice);font:800 15px var(--f-d)}
+.slot.fill{border-style:solid;border-color:var(--sky);background:rgba(46,139,255,.22);color:var(--ice)}
+.slot.lock{border-color:var(--good);background:var(--good-bg);color:var(--ice);cursor:default}
+.slot.bad{border-color:var(--nudge);background:var(--nudge-bg);color:var(--ice);animation:shake .4s}
+.pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;min-height:46px}
+.pc{padding:10px 16px;border-radius:99px;border:2px solid var(--sky);background:rgba(70,210,255,.12);color:var(--ice);font:800 16px var(--f-d);cursor:pointer}
+.pc small{display:block;font:700 12px var(--f-b);color:var(--mute)}
+.fb{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:14px 16px;border-radius:16px;border:2px solid;font-weight:700;animation:in .35s both}
+.fb .ic{width:28px;height:28px}
+.fb.good{border-color:var(--good);background:var(--good-bg)}
+.fb.good .ic{color:var(--good);fill:var(--good)}
+.fb.nudge{border-color:var(--nudge);background:var(--nudge-bg)}
+.fb.nudge .ic{color:var(--nudge)}
+.hint{font-weight:600;color:var(--mute)}
+.qact{margin-top:14px;display:flex;justify-content:flex-end}
+.qlist{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px}
+.endbig{display:flex;align-items:baseline;gap:8px;font:800 clamp(56px,14vw,96px)/1 var(--f-d);color:var(--sky)}
+.endbig small{font-size:24px;color:var(--mute)}
+.medal{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--gold);background:rgba(255,212,92,.12);color:var(--gold);margin-bottom:10px}
+.medal .ic{width:48px;height:48px;fill:var(--gold)}
+
+/* refleksi */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+.rgrid>*{min-width:0}
+@media(max-width:820px){.rgrid{grid-template-columns:1fr}}
+.rgrid .wide{grid-column:1/-1}
+.can{display:grid;gap:10px;margin:10px 0}
+.can button{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:rgba(14,66,140,.4);color:var(--ice);font:700 16px var(--f-b);cursor:pointer}
+.can .bx{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--sky);display:grid;place-items:center;color:transparent}
+.can button[aria-pressed=true]{border-color:var(--good);background:var(--good-bg)}
+.can button[aria-pressed=true] .bx{background:var(--good);border-color:var(--good);color:#032015}
+.can .bx .ic{width:20px;height:20px;stroke-width:4}
+.faces{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.face{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:16px;border:2px solid var(--line);background:rgba(14,66,140,.4);color:var(--ice);font:800 13px var(--f-d);letter-spacing:.04em;cursor:pointer;min-width:0}
+.face .ic{width:46px;height:46px;color:var(--sky)}
+.face[aria-pressed=true]{border-color:var(--gold);background:rgba(255,212,92,.14)}
+.face[aria-pressed=true] .ic{color:var(--gold)}
+label.fl{display:block;font:800 13px var(--f-d);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:8px 0 6px}
+details.teacher{margin-top:18px}
+details.teacher summary{cursor:pointer;font:800 16px var(--f-d);color:var(--sky)}
+details.teacher ul{margin:10px 0 0;padding-left:20px}
+details.teacher li{margin-bottom:6px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .bb{display:none}
+}
+</style>
+
+<svg style="position:absolute;width:0;height:0" aria-hidden="true" focusable="false">
+<defs>
+<symbol id="i-home" viewBox="0 0 48 48"><path d="M6 22L24 7l18 15M12 20v20h24V20M20 40V28h8v12"/></symbol>
+<symbol id="i-target" viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="9"/><circle cx="24" cy="24" r="2" fill="currentColor"/></symbol>
+<symbol id="i-book" viewBox="0 0 48 48"><path d="M6 10c6-3 12-3 18 1 6-4 12-4 18-1v28c-6-3-12-3-18 1-6-4-12-4-18-1z"/><path d="M24 11v28"/></symbol>
+<symbol id="i-swim" viewBox="0 0 48 48"><circle cx="35" cy="17" r="4"/><path d="M13 27l16-6M29 21l9 7M4 36q5-4 10 0t10 0 10 0 10 0"/></symbol>
+<symbol id="i-quiz" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M18 19a6 6 0 1 1 8 6c-2 1-2 3-2 4M24 34.5v.5"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 48 48"><path d="M17 32c0-3-5-6-5-12a12 12 0 0 1 24 0c0 6-5 9-5 12z"/><path d="M18 38h12M20 43h8"/></symbol>
+<symbol id="i-warm" viewBox="0 0 48 48"><circle cx="24" cy="9" r="4"/><path d="M24 14v16M24 19L12 9M24 19L36 9M24 30l-8 12M24 30l8 12"/></symbol>
+<symbol id="i-float" viewBox="0 0 48 48"><circle cx="11" cy="23" r="4"/><path d="M16 25h24M4 33q5-4 10 0t10 0 10 0 10 0 10 0M4 15q5-4 10 0t10 0 10 0"/></symbol>
+<symbol id="i-dive" viewBox="0 0 48 48"><path d="M4 11q5-4 10 0t10 0 10 0 10 0M24 28V19M24 19l-5-6M24 19l5-6M24 28l-7-4M24 28l7-4"/><circle cx="24" cy="33" r="4"/><circle cx="37" cy="26" r="2"/><circle cx="40" cy="36" r="1.6"/></symbol>
+<symbol id="i-jump" viewBox="0 0 48 48"><path d="M3 30h18M7 30v10M3 40h8"/><circle cx="33" cy="10" r="4"/><path d="M31 15l-6 10M25 25l-8 1M31 15l8 4M25 25l4 8"/><path d="M4 45q5-4 10 0t10 0 10 0 10 0"/></symbol>
+<symbol id="i-guard" viewBox="0 0 48 48"><circle cx="28" cy="29" r="10"/><path d="M18 21H6v8h10"/><circle cx="28" cy="29" r="2.5"/><path d="M28 12V7M37 15l3-3M19 15l-3-3"/></symbol>
+<symbol id="i-board" viewBox="0 0 48 48"><rect x="14" y="5" width="20" height="32" rx="9"/><path d="M19 14h10M19 20h10M19 26h10M4 43q5-4 10 0t10 0 10 0 10 0"/></symbol>
+<symbol id="i-frog" viewBox="0 0 48 48"><circle cx="14" cy="14" r="6"/><circle cx="34" cy="14" r="6"/><path d="M6 29c0-8 8-12 18-12s18 4 18 12-8 14-18 14S6 37 6 29z"/><circle cx="14" cy="14" r="1.6" fill="currentColor"/><circle cx="34" cy="14" r="1.6" fill="currentColor"/><path d="M16 33q8 6 16 0"/></symbol>
+<symbol id="i-heart" viewBox="0 0 48 48"><path d="M24 41C8 29 6 19 12 13.5a8 8 0 0 1 12 3 8 8 0 0 1 12-3C42 19 40 29 24 41z"/></symbol>
+<symbol id="i-goggle" viewBox="0 0 48 48"><circle cx="15" cy="24" r="8"/><circle cx="33" cy="24" r="8"/><path d="M23 24h2M7 22L3 20M41 22l4-2"/></symbol>
+<symbol id="i-arrow-r" viewBox="0 0 48 48"><path d="M8 24h30M26 12l12 12-12 12"/></symbol>
+<symbol id="i-arrow-l" viewBox="0 0 48 48"><path d="M40 24H10M22 12L10 24l12 12"/></symbol>
+<symbol id="i-star" viewBox="0 0 48 48"><path d="M24 5l5.5 11.6 12.7 1.7-9.3 8.8 2.3 12.6L24 33.6 12.8 39.7l2.3-12.6-9.3-8.8 12.7-1.7z"/></symbol>
+<symbol id="i-check" viewBox="0 0 48 48"><path d="M10 25l9 9 19-20"/></symbol>
+<symbol id="i-x" viewBox="0 0 48 48"><path d="M12 12l24 24M36 12L12 36"/></symbol>
+<symbol id="i-play" viewBox="0 0 48 48"><path d="M14 9l24 15-24 15z" fill="currentColor"/></symbol>
+<symbol id="i-pause" viewBox="0 0 48 48"><path d="M14 10h7v28h-7zM27 10h7v28h-7z" fill="currentColor"/></symbol>
+<symbol id="i-redo" viewBox="0 0 48 48"><path d="M38 24a14 14 0 1 1-4.5-10.3M38 8v8h-8"/></symbol>
+<symbol id="i-lung" viewBox="0 0 48 48"><path d="M24 8v18M24 26c-4 6-10 9-14 8 0-10 4-16 8-18M24 26c4 6 10 9 14 8 0-10-4-16-8-18"/></symbol>
+<symbol id="i-shield" viewBox="0 0 48 48"><path d="M24 5l15 6v11c0 10-7 17-15 21C16 39 9 32 9 22V11z"/><path d="M17 24l5 5 9-11"/></symbol>
+<symbol id="i-body" viewBox="0 0 48 48"><path d="M4 24h36M30 14l10 10-10 10"/><path d="M4 18v12"/></symbol>
+<symbol id="i-happy" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><circle cx="17" cy="20" r="1.8" fill="currentColor"/><circle cx="31" cy="20" r="1.8" fill="currentColor"/><path d="M15 29q9 9 18 0"/></symbol>
+<symbol id="i-so" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><circle cx="17" cy="20" r="1.8" fill="currentColor"/><circle cx="31" cy="20" r="1.8" fill="currentColor"/><path d="M16 31h16"/></symbol>
+<symbol id="i-lost" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><circle cx="17" cy="20" r="1.8" fill="currentColor"/><circle cx="31" cy="20" r="1.8" fill="currentColor"/><path d="M15 33q4-5 9-2t9-1"/></symbol>
+</defs>
+</svg>
+
+<div class="bgfx" id="bgfx" aria-hidden="true"></div>
+<div id="fx" aria-hidden="true"></div>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand"><b><span data-ic="frog"></span>Misi Gaya Dada</b><span>PJOK Kelas 6</span></div>
+  <nav class="steps" id="steps" aria-label="Langkah misi"></nav>
+  <div class="crumb"><span id="crumbt">Langkah 1 dari 6</span><i><b id="crumbb"></b></i></div>
+</header>
+
+<main>
+
+<!-- 1. Pembuka dan identitas -->
+<section class="slide" id="s0" aria-labelledby="t0">
+  <div class="hero">
+    <div>
+      <div class="kicker">Media pembelajaran interaktif PJOK</div>
+      <h1 class="title" id="t0">Gaya Dada</h1>
+      <div class="sub">Misi Katak Renang</div>
+      <p class="lead">Halo, calon perenang hebat! Selesaikan enam langkah misi ini. Kenali aktivitas di kolam renang, lalu tirukan gerak gaya dada seperti katak berenang.</p>
+      <div class="namebox">
+        <label for="nama">Tulis namamu dulu ya</label>
+        <div class="row">
+          <input id="nama" type="text" maxlength="24" placeholder="Contoh: Rani" autocomplete="off">
+          <button class="btn" id="go" type="button">Mulai Misi <span data-ic="arrow-r"></span></button>
+        </div>
+      </div>
+    </div>
+    <div class="card hud heroV">
+      <div id="h-sw"></div>
+      <div class="hcue"><span class="hk">Gerak sekarang</span><b id="h-cue">LUNCUR!</b></div>
+    </div>
+  </div>
+  <dl class="idl card">
+    <div><dt>Mata pelajaran</dt><dd>PJOK</dd></div>
+    <div><dt>Kelas</dt><dd>VI SD (Fase C)</dd></div>
+    <div><dt>Materi</dt><dd>Renang gaya dada</dd></div>
+    <div><dt>Nama murid</dt><dd id="idname">Sahabat Air</dd></div>
+  </dl>
+</section>
+
+<!-- 2. Tujuan pembelajaran -->
+<section class="slide" id="s1" hidden aria-labelledby="t1">
+  <div class="kicker">Misi 2 dari 6</div>
+  <h2 id="t1">Tujuan Misi</h2>
+  <p class="lead">Setelah menyelesaikan misi ini, kamu bisa dua hal hebat. Ketuk kartu untuk melihat buktinya.</p>
+  <div class="goals">
+    <button class="goal card hud" type="button" aria-expanded="false">
+      <span class="gi" data-ic="swim"></span>
+      <h3>Mengidentifikasi berbagai aktivitas di kolam renang</h3>
+      <p>Kamu mengenal pemanasan, mengapung, berenang, menyelam, dan aturan aman di kolam.</p>
+      <span class="tap">Ketuk untuk melihat buktinya</span>
+      <span class="more">Buktimu: kamu bisa menemukan semua aktivitas di Jelajah Kolam dan menjawab soal tentang aktivitas di kolam.</span>
+    </button>
+    <button class="goal card hud" type="button" aria-expanded="false">
+      <span class="gi" data-ic="frog"></span>
+      <h3>Menunjukkan gerak renang gaya dada</h3>
+      <p>Kamu menirukan gerak lengan, kaki, dan napas seperti katak berenang.</p>
+      <span class="tap">Ketuk untuk melihat buktinya</span>
+      <span class="more">Buktimu: kamu bisa mengurutkan gerakan dan melakukan latihan gerak di darat sebanyak lima putaran.</span>
+    </button>
+  </div>
+  <div class="kicker">Peta misi, ketuk untuk melompat</div>
+  <div class="path" id="path"></div>
+  <div class="pager"><button class="btn ghost" data-go="0"><span data-ic="arrow-l"></span>Kembali</button><button class="btn" data-go="2">Ke Materi <span data-ic="arrow-r"></span></button></div>
+</section>
+
+<!-- 3. Materi inti -->
+<section class="slide" id="s2" hidden aria-labelledby="t2">
+  <div class="kicker">Misi 3 dari 6</div>
+  <h2 id="t2">Kenali Gaya Dada</h2>
+  <p class="lead">Gaya dada disebut juga gaya katak. Badan telungkup di air, lalu kedua lengan dan kedua kaki bergerak bersamaan di kiri dan kanan seperti katak berenang.</p>
+  <div class="mgrid">
+    <div class="card hud">
+      <div id="m-sw"></div>
+      <div class="ctl" id="m-chips" role="group" aria-label="Pilih gerakan"></div>
+      <button class="btn ghost" id="m-play" type="button"><span data-ic="play"></span><em style="font-style:normal">Putar otomatis</em></button>
+    </div>
+    <div class="card desc" aria-live="polite">
+      <div class="kicker">Gerakan yang dipilih</div>
+      <h3 id="m-title">Luncur</h3>
+      <dl>
+        <div><dt><span data-ic="heart"></span>Lengan</dt><dd id="m-arm"></dd></div>
+        <div><dt><span data-ic="frog"></span>Kaki</dt><dd id="m-leg"></dd></div>
+        <div><dt><span data-ic="lung"></span>Napas</dt><dd id="m-br"></dd></div>
+      </dl>
+    </div>
+  </div>
+  <div class="kicker" style="margin-top:22px">Kata kunci, ketuk kartu untuk membaliknya</div>
+  <div class="kcs" id="kcs"></div>
+  <div class="card" style="margin-top:18px">
+    <h3>Aturan emas di kolam renang</h3>
+    <div class="rules">
+      <div><span data-ic="shield"></span><span>Lakukan pemanasan sebelum masuk air.</span></div>
+      <div><span data-ic="shield"></span><span>Dengarkan arahan guru dan penjaga kolam.</span></div>
+      <div><span data-ic="shield"></span><span>Jangan berlari di tepi kolam karena lantainya licin.</span></div>
+      <div><span data-ic="shield"></span><span>Berenanglah hanya bila ada orang dewasa yang mengawasi.</span></div>
+    </div>
+  </div>
+  <div class="pager"><button class="btn ghost" data-go="1"><span data-ic="arrow-l"></span>Kembali</button><button class="btn" data-go="3">Ke Aktivitas <span data-ic="arrow-r"></span></button></div>
+</section>
+
+<!-- 4. Aktivitas interaktif -->
+<section class="slide" id="s3" hidden aria-labelledby="t3">
+  <div class="kicker">Misi 4 dari 6</div>
+  <h2 id="t3">Ayo Beraksi</h2>
+  <div class="acts">
+    <div>
+      <h3>Aktivitas 1. Jelajah Kolam</h3>
+      <p class="lead">Ketuk ikon yang berkedip di kolam. Kumpulkan tujuh bintang dengan mengenal semua aktivitasnya.</p>
+      <div class="scene" id="scene">
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="gw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34b8ff"/><stop offset="1" stop-color="#0a4bb0"/></linearGradient>
+            <pattern id="tile" width="50" height="35" patternUnits="userSpaceOnUse"><path d="M50 0H0V35" fill="none" stroke="rgba(140,200,255,.16)"/></pattern>
+          </defs>
+          <rect width="800" height="500" fill="#06214d"/>
+          <rect width="800" height="140" fill="#0e3a7c"/>
+          <rect width="800" height="140" fill="url(#tile)"/>
+          <rect y="140" width="800" height="14" fill="#8fd0ff" opacity=".75"/>
+          <rect y="154" width="800" height="346" fill="url(#gw)"/>
+          <g fill="rgba(255,255,255,.08)"><ellipse cx="150" cy="300" rx="70" ry="10"/><ellipse cx="480" cy="270" rx="90" ry="11"/><ellipse cx="640" cy="380" rx="80" ry="10"/><ellipse cx="300" cy="450" rx="100" ry="12"/></g>
+          <g stroke="#fff" stroke-opacity=".6" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.1 18"><path d="M0 236H800"/><path d="M0 320H800"/><path d="M0 404H800"/></g>
+          <g fill="#5db4ff"><rect x="45" y="40" width="64" height="10" rx="3"/><rect x="49" y="12" width="8" height="32" rx="3"/></g>
+          <path d="M51 50L41 140M103 50L113 140M56 86H98" stroke="#5db4ff" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <rect x="690" y="124" width="110" height="9" rx="4" fill="#8fd0ff"/>
+          <rect x="752" y="133" width="48" height="19" fill="#2a6fd0"/>
+        </svg>
+      </div>
+      <div class="jrow">
+        <div class="card jinfo" aria-live="polite">
+          <span class="ji" id="j-ic" data-ic="swim"></span>
+          <div><h3 id="j-name">Pilih satu ikon</h3><p id="j-txt" style="margin:0">Ketuk ikon yang berkedip di gambar kolam untuk mengenal aktivitasnya.</p></div>
+        </div>
+        <div class="card">
+          <h3>Bintangmu</h3>
+          <div class="stars" id="j-stars" aria-hidden="true"></div>
+          <p id="j-count" style="margin:0">0 dari 7 aktivitas ditemukan</p>
+          <div class="okmsg" id="j-done" hidden>Hebat! Semua aktivitas sudah kamu temukan.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Aktivitas 2. Latihan Gerak di Darat</h3>
+      <p class="lead">Tirukan gerak perenang di layar. Ikuti aba-aba besar di bawah gambar, lalu ulangi sampai lima putaran.</p>
+      <div class="darat">
+        <div class="card hud">
+          <div id="d-sw"></div>
+          <div class="cue" id="d-cuebox"><b id="d-cue">LUNCUR!</b><span id="d-cued">Badan lurus, tahan sebentar.</span></div>
+          <div class="ctl">
+            <button class="btn" id="d-start" type="button"><span data-ic="play"></span><em style="font-style:normal">Mulai Latihan</em></button>
+            <button class="ch on" id="d-slow" type="button" aria-pressed="true">Pelan</button>
+            <button class="ch" id="d-norm" type="button" aria-pressed="false">Sedang</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Cara berlatih</h3>
+          <ol class="steps-l">
+            <li>Berdirilah di tempat yang lapang.</li>
+            <li>Condongkan badan sedikit ke depan.</li>
+            <li>Tirukan lengan dan kaki perenang di layar.</li>
+            <li>Tekan tombol di bawah setiap selesai satu putaran.</li>
+          </ol>
+          <div class="reps" id="d-reps"></div>
+          <button class="btn" id="d-rep" type="button"><span data-ic="check"></span>Satu putaran selesai</button>
+          <div class="okmsg" id="d-done" hidden>Luar biasa! Kamu sudah menjadi katak renang sejati.</div>
+          <p id="d-count" style="margin:10px 0 0;color:var(--mute)">0 dari 5 putaran</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pager"><button class="btn ghost" data-go="2"><span data-ic="arrow-l"></span>Kembali</button><button class="btn" data-go="4">Ke Kuis <span data-ic="arrow-r"></span></button></div>
+</section>
+
+<!-- 5. Kuis -->
+<section class="slide" id="s4" hidden aria-labelledby="t4">
+  <div class="kicker">Misi 5 dari 6</div>
+  <h2 id="t4">Kuis Kilat</h2>
+  <div id="qintro" class="card hud">
+    <p class="lead">Ada 10 soal seru. Kalau jawabanmu belum tepat, kamu boleh mencoba lagi sambil membaca petunjuk.</p>
+    <div class="qlist">
+      <span class="tag">4 pilihan ganda</span><span class="tag">3 benar atau salah</span><span class="tag">2 mencocokkan</span><span class="tag">1 mengurutkan</span>
+    </div>
+    <button class="btn" id="qstart" type="button">Mulai Kuis <span data-ic="arrow-r"></span></button>
+  </div>
+  <div id="qplay" hidden>
+    <div class="qhead"><span id="qnum">Soal 1 dari 10</span><span class="qtype" id="qtype"></span><span class="score" id="score"></span></div>
+    <div class="bar"><i id="qbar"></i></div>
+    <div class="dots" id="qdots"></div>
+    <div class="card hud"><div id="qbody"></div></div>
+    <div class="fb" id="fb" aria-live="polite" hidden></div>
+    <div class="qact"><button class="btn" id="qnext" type="button" hidden>Soal berikutnya</button></div>
+  </div>
+  <div id="qend" hidden>
+    <div class="card hud">
+      <div class="medal"><span data-ic="star"></span></div>
+      <div class="kicker">Hasil kuismu</div>
+      <h2 id="e-title">Juara Renang Emas</h2>
+      <div class="endbig"><span id="e-score">0</span><small>dari 100</small></div>
+      <p class="lead" id="e-msg"></p>
+      <div class="dots" id="e-dots"></div>
+      <div class="chips" id="e-topics"></div>
+      <div class="pager" style="margin-top:20px">
+        <button class="btn ghost" id="qagain" type="button"><span data-ic="redo"></span>Ulangi kuis</button>
+        <button class="btn ghost" data-go="2"><span data-ic="book"></span>Buka materi</button>
+        <button class="btn" data-go="5">Ke Refleksi <span data-ic="arrow-r"></span></button>
+      </div>
+    </div>
+  </div>
+  <div class="pager"><button class="btn ghost" data-go="3"><span data-ic="arrow-l"></span>Kembali</button><button class="btn ghost" data-go="5">Lewati ke Refleksi</button></div>
+</section>
+
+<!-- 6. Umpan balik dan refleksi -->
+<section class="slide" id="s5" hidden aria-labelledby="t5">
+  <div class="kicker">Misi 6 dari 6</div>
+  <h2 id="t5">Umpan Balik dan Refleksi</h2>
+  <div class="rgrid">
+    <div class="card hud wide">
+      <div class="medal"><span data-ic="star"></span></div>
+      <h3 id="r-title">Kerjakan kuis dulu ya</h3>
+      <p id="r-msg">Selesaikan kuis untuk melihat umpan balik dari perjalanan belajarmu.</p>
+      <div class="chips" id="r-topics"></div>
+    </div>
+    <div class="card">
+      <h3>Aku sudah bisa</h3>
+      <div class="can" id="can">
+        <button type="button" aria-pressed="false"><span class="bx" data-ic="check"></span>Menyebutkan aktivitas di kolam renang</button>
+        <button type="button" aria-pressed="false"><span class="bx" data-ic="check"></span>Menjelaskan gerak lengan gaya dada</button>
+        <button type="button" aria-pressed="false"><span class="bx" data-ic="check"></span>Menunjukkan gerak kaki seperti katak</button>
+        <button type="button" aria-pressed="false"><span class="bx" data-ic="check"></span>Mengambil napas di waktu yang tepat</button>
+      </div>
+      <p id="can-msg" style="margin:0;color:var(--mute)">Ketuk yang sudah kamu kuasai.</p>
+    </div>
+    <div class="card">
+      <h3>Perasaanku hari ini</h3>
+      <div class="faces" id="faces">
+        <button class="face" type="button" aria-pressed="false" data-m="a"><span data-ic="happy"></span>Senang</button>
+        <button class="face" type="button" aria-pressed="false" data-m="b"><span data-ic="so"></span>Biasa saja</button>
+        <button class="face" type="button" aria-pressed="false" data-m="c"><span data-ic="lost"></span>Masih bingung</button>
+      </div>
+      <p id="face-msg" style="margin:0;color:var(--mute)">Pilih wajah yang paling cocok.</p>
+    </div>
+    <div class="card wide">
+      <h3>Catatanku</h3>
+      <label class="fl" for="note">Satu hal baru yang kupelajari hari ini</label>
+      <textarea id="note" rows="3" placeholder="Tulis dengan kata-katamu sendiri"></textarea>
+      <label class="fl" for="plan">Aku akan berlatih gerak gaya dada dengan cara</label>
+      <textarea id="plan" rows="2" placeholder="Contoh: berlatih gerak lengan dan kaki lima kali setiap hari"></textarea>
+    </div>
+  </div>
+  <details class="card teacher">
+    <summary>Catatan untuk guru</summary>
+    <ul>
+      <li>Kuis berisi 10 soal: 4 pilihan ganda, 3 benar atau salah, 2 mencocokkan, dan 1 mengurutkan.</li>
+      <li>Skor 100 dihitung dari soal yang benar pada percobaan pertama. Setiap soal bernilai 10.</li>
+      <li>Murid boleh mencoba lagi setelah salah agar tetap belajar, tetapi skornya tidak berubah.</li>
+      <li>Aktivitas 2 dapat dipakai untuk mengamati gerak murid: posisi badan, gerak lengan, gerak kaki, dan waktu mengambil napas.</li>
+      <li>Praktik renang di kolam yang sebenarnya harus didampingi guru dan penjaga kolam.</li>
+    </ul>
+  </details>
+  <div class="pager"><button class="btn ghost" data-go="4"><span data-ic="arrow-l"></span>Kembali</button><button class="btn" data-go="0"><span data-ic="redo"></span>Ulangi dari awal</button></div>
+</section>
+
+</main>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const name=()=>($('#nama').value.trim()||'Sahabat Air');
+const fill=root=>$$('[data-ic]',root).forEach(e=>{if(!e.firstElementChild)e.innerHTML=ic(e.dataset.ic)});
+fill(document);
+
+/* gelembung latar */
+(()=>{const bg=$('#bgfx');if(RM)return;for(let i=0;i<10;i++){const b=document.createElement('i');b.className='bb';const s=10+Math.random()*26;b.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${14+Math.random()*16}s;animation-delay:${-Math.random()*20}s`;bg.appendChild(b)}})();
+
+/* bintang pecah */
+function burst(target){
+  if(RM||!target)return;
+  const r=target.getBoundingClientRect(),cx=r.left+r.width/2,cy=Math.min(r.top+r.height/2,innerHeight-40),fx=$('#fx');
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');s.className='pt';
+    const a=Math.random()*Math.PI*2,d=60+Math.random()*90;
+    s.style.left=cx+'px';s.style.top=cy+'px';
+    s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');
+    s.innerHTML=ic('star');fx.appendChild(s);setTimeout(()=>s.remove(),1000);
+  }
+}
+
+/* ===== data gerakan ===== */
+const PH=[
+ {k:'Tarik',cue:'TARIK!',short:'Sapu kedua lengan ke samping.',
+  arm:'Lengan menyapu ke samping dan ke bawah, seperti membentuk bentuk hati.',leg:'Kaki masih lurus dan rapat.',br:'Kepala mulai naik pelan-pelan.',
+  p:{ex:388,ey:170,hx:440,hy:178,kx:188,ky:154,fx:134,fy:154,cx:374,cy:142,bub:0,air:0}},
+ {k:'Napas',cue:'NAPAS!',short:'Angkat kepala, tarik napas.',
+  arm:'Kedua tangan ditarik ke arah dada.',leg:'Kaki masih lurus.',br:'Angkat kepala dan tarik napas lewat mulut.',
+  p:{ex:352,ey:184,hx:398,hy:186,kx:195,ky:156,fx:142,fy:158,cx:381,cy:122,bub:0,air:1}},
+ {k:'Tekuk',cue:'TEKUK!',short:'Tekuk lutut, tangan di dada.',
+  arm:'Siku merapat dan kedua tangan berada di bawah dagu.',leg:'Lutut ditekuk, tumit mendekat ke pantat, telapak kaki dibuka ke luar.',br:'Wajah masuk ke dalam air.',
+  p:{ex:326,ey:186,hx:372,hy:174,kx:272,ky:188,fx:222,fy:198,cx:372,cy:140,bub:0,air:0}},
+ {k:'Dorong',cue:'DORONG!',short:'Lengan ke depan, kaki mendorong.',
+  arm:'Lengan diluruskan ke depan.',leg:'Kaki mendorong ke belakang membentuk lingkaran, lalu dirapatkan.',br:'Hembuskan napas ke air lewat mulut dan hidung.',
+  p:{ex:392,ey:162,hx:452,hy:154,kx:210,ky:176,fx:156,fy:186,cx:372,cy:146,bub:1,air:0}},
+ {k:'Luncur',cue:'LUNCUR!',short:'Badan lurus, tahan sebentar.',
+  arm:'Lengan lurus ke depan dan kedua tangan rapat.',leg:'Kaki lurus dan rapat.',br:'Wajah di air, hembuskan napas pelan-pelan.',
+  p:{ex:405,ey:150,hx:475,hy:150,kx:185,ky:153,fx:130,fy:153,cx:374,cy:148,bub:1,air:0}}
+];
+
+/* ===== animasi perenang ===== */
+let uid=0;
+function swimSVG(){
+  uid++;const id='sg'+uid;
+  let wd='M0 140';for(let i=0;i<16;i++)wd+='q20 -6 40 0t40 0';wd+='V300H0Z';
+  const L=(r,w,o)=>`<polyline data-r="${r}" fill="none" stroke="#e8f6ff" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" opacity="${o}"/>`;
+  return `<svg class="sw" viewBox="0 0 640 300" role="img" aria-label="Animasi perenang gaya dada dilihat dari samping">
+<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d78e6"/><stop offset="1" stop-color="#051c45"/></linearGradient></defs>
+<rect width="640" height="300" fill="#041a3d"/>
+<rect y="140" width="640" height="160" fill="url(#${id})"/>
+<g class="fig">
+${L('armF',10,.5)}${L('legF',13,.5)}
+<line data-r="neck" stroke="#e8f6ff" stroke-width="16" stroke-linecap="round"/>
+<line x1="240" y1="152" x2="340" y2="150" stroke="#e8f6ff" stroke-width="28" stroke-linecap="round"/>
+<line x1="246" y1="152" x2="296" y2="151" stroke="#2e8bff" stroke-width="28"/>
+${L('legN',14,1)}${L('armN',11,1)}
+<circle data-r="hand" r="7" fill="#e8f6ff"/><ellipse data-r="foot" rx="10" ry="5" fill="#e8f6ff"/>
+</g>
+<g class="wv" fill="rgba(60,160,255,.34)"><path d="${wd}"/></g>
+<line x1="0" y1="140" x2="640" y2="140" stroke="#7fd6ff" stroke-opacity=".5"/>
+<g data-r="head">
+<circle r="15" fill="#e8f6ff"/><path d="M-15 0A15 15 0 0 1 15 0Z" fill="#2e8bff"/><circle cx="8" cy="3" r="4.5" fill="#46d2ff" stroke="#031127" stroke-width="1.5"/>
+<g data-r="bubs" class="bubs"><circle cx="24" cy="10" r="3.5"/><circle cx="32" cy="2" r="2.6"/><circle cx="27" cy="-8" r="2"/></g>
+<g data-r="air"><rect x="-6" y="-52" width="58" height="26" rx="13" fill="#031127" stroke="#46d2ff" stroke-width="2"/><text x="23" y="-34" text-anchor="middle" fill="#e8f6ff" font-size="15" font-weight="800" font-family="Nunito,sans-serif">Hap!</text></g>
+</g>
+<text x="620" y="28" text-anchor="end" fill="#a9cdf2" font-size="14" font-weight="800" font-family="Nunito,sans-serif">Arah renang</text>
+<path d="M520 24h70m-9-6 9 6-9 6" stroke="#46d2ff" fill="none" stroke-width="2.5" stroke-linecap="round" transform="translate(0,-2)" opacity="0"/>
+</svg>`;
+}
+function applyPose(svg,p){
+  const g=r=>svg.querySelector(`[data-r="${r}"]`);
+  const pts=a=>a.map(v=>v[0].toFixed(1)+','+v[1].toFixed(1)).join(' ');
+  g('armN').setAttribute('points',pts([[340,150],[p.ex,p.ey],[p.hx,p.hy]]));
+  g('armF').setAttribute('points',pts([[343,145],[p.ex+8,p.ey-5],[p.hx+8,p.hy-5]]));
+  g('legN').setAttribute('points',pts([[240,152],[p.kx,p.ky],[p.fx,p.fy]]));
+  g('legF').setAttribute('points',pts([[238,147],[p.kx+8,p.ky-5],[p.fx+8,p.fy-5]]));
+  const h=g('hand');h.setAttribute('cx',p.hx.toFixed(1));h.setAttribute('cy',p.hy.toFixed(1));
+  const f=g('foot');f.setAttribute('cx',p.fx.toFixed(1));f.setAttribute('cy',p.fy.toFixed(1));
+  const n=g('neck');n.setAttribute('x1',350);n.setAttribute('y1',150);n.setAttribute('x2',(p.cx-6).toFixed(1));n.setAttribute('y2',(p.cy+6).toFixed(1));
+  g('head').setAttribute('transform',`translate(${p.cx.toFixed(1)},${p.cy.toFixed(1)})`);
+  g('bubs').setAttribute('opacity',p.bub.toFixed(2));
+  g('air').setAttribute('opacity',p.air.toFixed(2));
+}
+function Swimmer(host,onPhase){
+  host.innerHTML=swimSVG();
+  const svg=host.firstElementChild;
+  let cur=4,pose={...PH[4].p},raf=0,timer=0,playing=false;
+  applyPose(svg,pose);
+  function tween(to,ms){
+    cancelAnimationFrame(raf);
+    if(!ms||RM){pose={...to};applyPose(svg,pose);return}
+    const from={...pose},t0=performance.now();
+    const f=t=>{
+      const k=Math.min(1,(t-t0)/ms),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+      for(const key in to)pose[key]=from[key]+(to[key]-from[key])*e;
+      applyPose(svg,pose);
+      if(k<1)raf=requestAnimationFrame(f);
+    };
+    raf=requestAnimationFrame(f);
+  }
+  function go(i){cur=i;tween(PH[i].p,850);if(onPhase)onPhase(i)}
+  function stop(){clearInterval(timer);timer=0;playing=false}
+  function play(hold){stop();playing=true;go((cur+1)%PH.length);timer=setInterval(()=>go((cur+1)%PH.length),hold)}
+  return{go,play,stop,get playing(){return playing},get cur(){return cur}};
+}
+
+/* ===== navigasi ===== */
+const NAMES=['Mulai','Tujuan','Materi','Aktivitas','Kuis','Refleksi'];
+const NICONS=['home','target','book','swim','quiz','bulb'];
+const slides=$$('.slide');
+const stepsEl=$('#steps');
+stepsEl.innerHTML=NAMES.map((n,i)=>`<button class="st" type="button" data-go="${i}" aria-label="Langkah ${i+1}: ${n}">${ic(NICONS[i])}<span>${n}</span></button>`).join('');
+$('#path').innerHTML=NAMES.map((n,i)=>`<button type="button" data-go="${i}">${ic(NICONS[i])}${n}</button>`).join('');
+let cur=0;const seen=new Set([0]);
+let heroSw,mSw,dSw;
+function show(n){
+  cur=n;seen.add(n);
+  slides.forEach((s,i)=>{s.hidden=i!==n;if(i===n){s.style.animation='none';void s.offsetWidth;s.style.animation=''}});
+  $$('.st',stepsEl).forEach((b,i)=>{b.classList.toggle('on',i===n);b.classList.toggle('vis',seen.has(i)&&i!==n);if(i===n)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+  $('#crumbt').textContent=`Langkah ${n+1} dari 6: ${NAMES[n]}`;
+  $('#crumbb').style.width=((n+1)/6*100)+'%';
+  heroSw.stop();mSw.stop();dSw.stop();
+  syncPlay();syncDarat();
+  if(n===0&&!RM)heroSw.play(1700);
+  if(n===5)updateReflect();
+  window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)show(+b.dataset.go)});
+$('#go').onclick=()=>show(1);
+$('#nama').addEventListener('input',()=>{$('#idname').textContent=name()});
+
+/* ===== slide tujuan ===== */
+$$('.goal').forEach(b=>b.onclick=()=>b.setAttribute('aria-expanded',b.getAttribute('aria-expanded')!=='true'));
+
+/* ===== slide materi ===== */
+mSw=Swimmer($('#m-sw'),i=>showPhase(i));
+$('#m-chips').innerHTML=PH.map((p,i)=>`<button class="ch" type="button" data-i="${i}" aria-pressed="false"><b>${i+1}</b>${p.k}</button>`).join('');
+function showPhase(i){
+  $$('#m-chips .ch').forEach((b,k)=>{b.classList.toggle('on',k===i);b.setAttribute('aria-pressed',k===i)});
+  const p=PH[i];
+  $('#m-title').textContent=p.k;$('#m-arm').textContent=p.arm;$('#m-leg').textContent=p.leg;$('#m-br').textContent=p.br;
+}
+function syncPlay(){
+  const b=$('#m-play');b.innerHTML=ic(mSw.playing?'pause':'play')+`<em style="font-style:normal">${mSw.playing?'Jeda':'Putar otomatis'}</em>`;
+}
+$$('#m-chips .ch').forEach(b=>b.onclick=()=>{mSw.stop();mSw.go(+b.dataset.i);syncPlay()});
+$('#m-play').onclick=()=>{if(mSw.playing)mSw.stop();else mSw.play(1900);syncPlay()};
+showPhase(4);
+const KC=[
+ {i:'body',t:'Badan',b:'Telungkup, lurus dan datar seperti anak panah saat meluncur.'},
+ {i:'heart',t:'Lengan',b:'Tarik ke samping seperti membentuk hati, lalu luruskan ke depan.'},
+ {i:'frog',t:'Kaki',b:'Tekuk lutut, buka telapak kaki seperti kaki katak, dorong, lalu rapatkan.'},
+ {i:'lung',t:'Napas',b:'Angkat kepala untuk tarik napas. Wajah masuk air, hembuskan lewat mulut.'}
+];
+$('#kcs').innerHTML=KC.map(k=>`<button class="kc" type="button" aria-pressed="false" aria-label="Kartu ${k.t}, ketuk untuk membalik"><span class="kc-in"><span class="kc-f">${ic(k.i)}<b>${k.t}</b><small>Ketuk untuk membalik</small></span><span class="kc-b"><b>${k.t}</b>${k.b}</span></span></button>`).join('');
+$$('.kc').forEach(b=>b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'));
+
+/* ===== aktivitas 1: jelajah kolam ===== */
+const SP=[
+ {n:'Penjaga kolam',i:'guard',x:9,y:17,t:'Penjaga kolam mengawasi semua perenang. Dengarkan peluit dan arahannya supaya kita selalu aman.'},
+ {n:'Pemanasan',i:'warm',x:33,y:17,t:'Gerakkan leher, lengan, dan kaki di tepi kolam. Otot jadi lentur dan tidak mudah kram.'},
+ {n:'Meloncat dari papan',i:'jump',x:89,y:13,t:'Meloncat ke kolam yang dalam. Lakukan hanya bila guru mengizinkan dan ada yang mengawasi.'},
+ {n:'Mengapung',i:'float',x:62,y:38,t:'Badan tetap di permukaan air dengan tenang. Ini dasar semua gaya renang.'},
+ {n:'Berenang',i:'swim',x:24,y:57,t:'Bergerak maju di air dengan gaya renang, salah satunya gaya dada.'},
+ {n:'Menyelam',i:'dive',x:44,y:84,t:'Masuk ke bawah permukaan air sambil menahan napas. Lakukan di kolam yang cukup dalam bersama guru.'},
+ {n:'Latihan dengan papan',i:'board',x:80,y:68,t:'Papan luncur membantu badan tetap terapung saat kita melatih gerak kaki.'}
+];
+const found=new Set();
+const scene=$('#scene');
+SP.forEach((s,k)=>{
+  const b=document.createElement('button');
+  b.type='button';b.className='hs';b.style.left=s.x+'%';b.style.top=s.y+'%';b.setAttribute('aria-label',s.n);
+  b.innerHTML=ic(s.i)+`<span class="tk">${ic('check')}</span><span class="hl">${s.n}</span>`;
+  b.onclick=()=>{
+    $$('.hs',scene).forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    const first=!found.has(k);found.add(k);b.classList.add('found');
+    $('#j-ic').innerHTML=ic(s.i);$('#j-name').textContent=s.n;$('#j-txt').textContent=s.t;
+    drawStars();
+    if(first)burst(b);
+    if(found.size===SP.length){$('#j-done').hidden=false;burst($('#j-done'))}
+  };
+  scene.appendChild(b);
+});
+function drawStars(){
+  $('#j-stars').innerHTML=SP.map((_,k)=>ic('star',found.has(k)?'on':'')).join('');
+  $('#j-count').textContent=`${found.size} dari ${SP.length} aktivitas ditemukan`;
+}
+drawStars();
+
+/* ===== aktivitas 2: latihan di darat ===== */
+let hold=2400,reps=0;
+dSw=Swimmer($('#d-sw'),i=>{
+  $('#d-cue').textContent=PH[i].cue;$('#d-cued').textContent=PH[i].short;
+  const c=$('#d-cuebox');c.classList.remove('pulse');void c.offsetWidth;c.classList.add('pulse');
+});
+$('#d-reps').innerHTML='<i></i><i></i><i></i><i></i><i></i>';
+function syncDarat(){
+  const b=$('#d-start');b.innerHTML=ic(dSw.playing?'pause':'play')+`<em style="font-style:normal">${dSw.playing?'Jeda':'Mulai Latihan'}</em>`;
+}
+function setSpeed(ms,slow){
+  hold=ms;
+  $('#d-slow').classList.toggle('on',slow);$('#d-slow').setAttribute('aria-pressed',slow);
+  $('#d-norm').classList.toggle('on',!slow);$('#d-norm').setAttribute('aria-pressed',!slow);
+  if(dSw.playing)dSw.play(hold);
+}
+$('#d-slow').onclick=()=>setSpeed(2400,true);
+$('#d-norm').onclick=()=>setSpeed(1600,false);
+$('#d-start').onclick=()=>{if(dSw.playing)dSw.stop();else dSw.play(hold);syncDarat()};
+$('#d-rep').onclick=()=>{
+  if(reps>=5){reps=0;$('#d-done').hidden=true}
+  else{
+    reps++;
+    if(reps===5){$('#d-done').hidden=false;burst($('#d-done'))}
+  }
+  $$('#d-reps i').forEach((x,k)=>x.classList.toggle('on',k<reps));
+  $('#d-count').textContent=`${reps} dari 5 putaran`;
+  $('#d-rep').innerHTML=ic(reps>=5?'redo':'check')+(reps>=5?'Latihan lagi':'Satu putaran selesai');
+};
+
+/* ===== kuis ===== */
+const GOOD=[n=>`Hebat sekali, ${n}! Jawabanmu tepat.`,n=>`Keren! Kamu perenang yang cerdas, ${n}.`,n=>`Luar biasa, ${n}! Pertahankan semangatmu.`,n=>`Mantap! Satu bintang untukmu, ${n}.`];
+const NUDGE=[n=>`Tidak apa-apa, ${n}. Perenang hebat juga belajar dari salah. Ayo coba lagi!`,n=>`Hampir tepat! Kamu pasti bisa, coba sekali lagi.`,n=>`Jangan menyerah, ${n}. Baca petunjuknya lalu coba lagi ya.`,n=>`Semangat! Setiap percobaan membuatmu makin pandai.`];
+const tf=(text,truth,hint,why,topic)=>({type:'tf',badge:'Benar atau salah',text,opts:[{t:'Benar',ok:truth},{t:'Salah',ok:!truth}],hint,why,topic});
+const Q=[
+ {type:'pg',badge:'Pilihan ganda',icon:'jump',text:'Ikon ini menunjukkan aktivitas apa di kolam renang?',
+  opts:[{t:'Mengapung di permukaan air'},{t:'Meloncat dari papan loncat',ok:true},{t:'Pemanasan di tepi kolam'},{t:'Menyelam di dasar kolam'}],
+  hint:'Lihat papan di sisi kolam dan orang yang melayang di udara.',why:'Papan loncat dipakai untuk meloncat ke kolam yang dalam, dan harus ada pengawasan.',topic:'Aktivitas di kolam'},
+ {type:'match',badge:'Mencocokkan',text:'Cocokkan nama aktivitas dengan artinya.',
+  pairs:[{l:'Pemanasan',icon:'warm',r:'Meregangkan otot sebelum masuk air'},{l:'Mengapung',icon:'float',r:'Badan tetap di permukaan air dengan tenang'},{l:'Menyelam',icon:'dive',r:'Masuk ke bawah permukaan air'},{l:'Penjaga kolam',icon:'guard',r:'Mengawasi keselamatan perenang'}],
+  hint:'Baca artinya pelan-pelan, lalu pilih pasangan yang paling cocok.',why:'Semua aktivitas ini membuat kita aman dan nyaman di air.',topic:'Aktivitas di kolam'},
+ tf('Pemanasan sebelum masuk kolam membuat otot siap bergerak dan tidak mudah kram.',true,'Bayangkan otot yang kaku lalu tiba-tiba bergerak cepat.','Pemanasan melenturkan otot, jadi tubuh siap berenang.','Aktivitas di kolam'),
+ {type:'pg',badge:'Pilihan ganda',text:'Pada renang gaya dada, posisi badan perenang adalah...',
+  opts:[{t:'Telungkup di permukaan air',ok:true},{t:'Telentang menghadap atas'},{t:'Berdiri tegak di air'},{t:'Miring ke satu sisi'}],
+  hint:'Ingat katak yang sedang berenang. Perutnya menghadap ke bawah.',why:'Badan telungkup dan datar membuat luncuran lebih jauh.',topic:'Posisi badan'},
+ {type:'match',badge:'Mencocokkan',text:'Cocokkan bagian tubuh dengan gerakannya pada gaya dada.',
+  pairs:[{l:'Lengan',icon:'heart',r:'Ditarik ke samping seperti bentuk hati, lalu diluruskan ke depan'},{l:'Kaki',icon:'frog',r:'Ditekuk, dibuka seperti kaki katak, lalu didorong dan dirapatkan'},{l:'Kepala',icon:'goggle',r:'Diangkat sebentar untuk mengambil napas'},{l:'Badan',icon:'body',r:'Lurus dan datar saat meluncur'}],
+  hint:'Ingat kartu kata kunci di materi. Setiap bagian tubuh punya tugas sendiri.',why:'Lengan, kaki, kepala, dan badan bekerja sama supaya gerakan terasa halus.',topic:'Gerak gaya dada'},
+ {type:'order',badge:'Mengurutkan',text:'Susun lima langkah gerak gaya dada dari awal sampai akhir. Ketuk kartu sesuai urutan yang benar.',
+  items:[{t:'Tarik',d:'Lengan menyapu ke samping'},{t:'Napas',d:'Angkat kepala, tarik napas'},{t:'Tekuk',d:'Tangan di dada, lutut ditekuk'},{t:'Dorong',d:'Lengan ke depan, kaki mendorong'},{t:'Luncur',d:'Badan lurus, tahan sebentar'}],
+  hint:'Mulai dari gerak lengan, lalu napas, lalu kaki, dan berakhir dengan meluncur.',why:'Urutan Tarik, Napas, Tekuk, Dorong, Luncur diulang terus sampai ke seberang kolam.',topic:'Urutan gerak'},
+ tf('Gerak kaki gaya dada naik turun seperti gerak kaki gaya bebas.',false,'Kaki gaya dada bergerak seperti katak. Apakah katak menendang naik turun?','Kaki gaya dada ditekuk, dibuka, didorong, lalu dirapatkan. Bukan naik turun.','Gerak kaki'),
+ {type:'pg',badge:'Pilihan ganda',text:'Kapan kepala diangkat untuk mengambil napas pada gaya dada?',
+  opts:[{t:'Saat lengan menarik ke samping dan ke dada',ok:true},{t:'Saat kaki mulai mendorong ke belakang'},{t:'Sepanjang waktu tanpa masuk air'},{t:'Tidak perlu mengambil napas'}],
+  hint:'Napas diambil setelah lengan menyapu ke samping dan sebelum kaki ditekuk.',why:'Setelah napas, wajah masuk air dan napas dihembuskan lewat mulut dan hidung.',topic:'Pernapasan'},
+ {type:'pg',badge:'Pilihan ganda',text:'Apa yang sebaiknya dilakukan sebelum masuk ke kolam renang?',
+  opts:[{t:'Pemanasan dan mendengarkan arahan guru',ok:true},{t:'Berlari mengelilingi kolam'},{t:'Langsung meloncat ke air'},{t:'Makan banyak makanan'}],
+  hint:'Pilih yang membuat badan siap dan aman.',why:'Pemanasan dan mendengarkan guru menjaga kita tetap aman.',topic:'Keselamatan'},
+ tf('Gaya dada sering disebut gaya katak karena gerak kakinya mirip katak berenang.',true,'Bayangkan katak di kolam. Bagaimana kakinya bergerak?','Kaki katak ditekuk, dibuka, lalu didorong. Gaya dada menirunya.','Gerak kaki')
+];
+let qi=0,res=Array(Q.length).fill(null),solved=false,gi=0,ni=0;
+const body=$('#qbody'),fbEl=$('#fb'),nextB=$('#qnext');
+const score=()=>res.filter(r=>r===true).length*10;
+function fb(kind,msg){fbEl.hidden=false;fbEl.className='fb '+kind;fbEl.innerHTML=ic(kind==='good'?'star':'heart')+`<div>${msg}</div>`}
+function head(){
+  $('#qnum').textContent=`Soal ${qi+1} dari ${Q.length}`;
+  $('#qtype').textContent=Q[qi].badge;
+  $('#qbar').style.width=((qi+(solved?1:0))/Q.length*100)+'%';
+  $('#score').innerHTML=ic('star')+score();
+  $('#qdots').innerHTML=Q.map((_,k)=>`<i class="${k===qi&&!solved?'cur ':''}${res[k]===true?'g':res[k]===false?'n':''}"></i>`).join('');
+}
+function good(q){
+  if(res[qi]===null)res[qi]=true;
+  solved=true;
+  fb('good',`${GOOD[gi++%GOOD.length](name())} ${q.why}`);
+  burst(fbEl);head();
+  nextB.hidden=false;nextB.textContent=qi===Q.length-1?'Lihat hasil':'Soal berikutnya';
+}
+function bad(q){
+  if(res[qi]===null)res[qi]=false;
+  fb('nudge',`${NUDGE[ni++%NUDGE.length](name())}<br><span class="hint">Petunjuk: ${q.hint}</span>`);
+  head();
+}
+function renderPG(q){
+  const opts=q.type==='tf'?q.opts:shuffle(q.opts);
+  body.innerHTML=(q.icon?`<div class="qicon">${ic(q.icon)}</div>`:'')+`<p class="qtext">${q.text}</p><div class="opts ${q.type==='tf'?'tf':''}">${opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><span class="ol">${q.type==='tf'?ic(o.ok===undefined||i===0?'check':'x'):'ABCD'[i]}</span><span>${o.t}</span></button>`).join('')}</div>`;
+  if(q.type==='tf')$$('.opt',body).forEach((b,i)=>{b.querySelector('.ol').innerHTML=ic(i===0?'check':'x')});
+  $$('.opt',body).forEach((b,i)=>b.onclick=()=>{
+    if(solved)return;
+    if(opts[i].ok){b.classList.add('ok');$$('.opt',body).forEach(x=>x.disabled=true);good(q)}
+    else{b.classList.add('bad');b.disabled=true;bad(q)}
+  });
+}
+function renderMatch(q){
+  const rights=shuffle(q.pairs.map((p,i)=>({i,t:p.r})));
+  body.innerHTML=`<p class="qtext">${q.text}</p><div class="mt"><div class="mcol" id="ml">${q.pairs.map((p,i)=>`<button class="mi" type="button" data-i="${i}">${ic(p.icon)}<span>${p.l}</span></button>`).join('')}</div><div class="mcol" id="mr">${rights.map(r=>`<button class="mi" type="button" data-i="${r.i}"><span>${r.t}</span></button>`).join('')}</div></div>`;
+  let sl=null,sr=null,done=0;
+  const L=$$('#ml .mi',body),R=$$('#mr .mi',body);
+  const pick=(side,b)=>{
+    if(solved||b.classList.contains('done'))return;
+    const list=side==='l'?L:R;
+    list.forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+    if(side==='l')sl=b;else sr=b;
+    if(sl&&sr){
+      if(sl.dataset.i===sr.dataset.i){
+        done++;
+        [sl,sr].forEach(x=>{x.classList.remove('sel');x.classList.add('done');x.insertAdjacentHTML('beforeend',`<em class="pn">${done}</em>`)});
+        sl=sr=null;
+        if(done===q.pairs.length){
+          if(res[qi]===false){
+            solved=true;
+            fb('good',`${GOOD[gi++%GOOD.length](name())} Semua pasangan sudah lengkap. ${q.why}`);
+            burst(fbEl);head();nextB.hidden=false;nextB.textContent=qi===Q.length-1?'Lihat hasil':'Soal berikutnya';
+          }else good(q);
+        }
+      }else{
+        const a=sl,c=sr;sl=sr=null;
+        [a,c].forEach(x=>{x.classList.remove('sel');x.classList.add('shake')});
+        setTimeout(()=>[a,c].forEach(x=>x.classList.remove('shake')),450);
+        bad(q);
+      }
+    }
+  };
+  L.forEach(b=>b.onclick=()=>pick('l',b));
+  R.forEach(b=>b.onclick=()=>pick('r',b));
+}
+function renderOrder(q){
+  const n=q.items.length,slots=Array(n).fill(null),lock=Array(n).fill(false),badAt=Array(n).fill(false);
+  function draw(){
+    const placed=new Set(slots.filter(v=>v!==null));
+    const pool=q.shuffled.filter(i=>!placed.has(i));
+    body.innerHTML=`<p class="qtext">${q.text}</p>
+<div class="ordl">${slots.map((v,k)=>`<button class="slot ${v!==null?'fill':''} ${lock[k]?'lock':''} ${badAt[k]?'bad':''}" type="button" data-k="${k}"><span class="no">${k+1}</span><span>${v!==null?`<b>${q.items[v].t}</b> ${q.items[v].d}`:'Ketuk kartu di bawah'}</span></button>`).join('')}</div>
+<div class="pool">${pool.map(i=>`<button class="pc" type="button" data-i="${i}">${q.items[i].t}<small>${q.items[i].d}</small></button>`).join('')}</div>
+<button class="btn" id="chk" type="button" ${slots.every(v=>v!==null)&&!solved?'':'disabled'}>Periksa jawaban</button>`;
+    $$('.pc',body).forEach(b=>b.onclick=()=>{
+      if(solved)return;const k=slots.indexOf(null);if(k<0)return;
+      slots[k]=+b.dataset.i;badAt.fill(false);draw();
+    });
+    $$('.slot',body).forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k;if(solved||lock[k]||slots[k]===null)return;
+      slots[k]=null;badAt.fill(false);draw();
+    });
+    $('#chk',body).onclick=()=>{
+      let wrong=0;
+      slots.forEach((v,k)=>{if(v===k)lock[k]=true;else{badAt[k]=true;wrong++}});
+      if(!wrong){solved=true;draw();good(q)}
+      else{
+        draw();
+        bad(q);
+        setTimeout(()=>{slots.forEach((v,k)=>{if(badAt[k])slots[k]=null});badAt.fill(false);draw()},1400);
+      }
+    };
+  }
+  q.shuffled=shuffle(q.items.map((_,i)=>i));
+  draw();
+}
+function render(){
+  const q=Q[qi];solved=false;fbEl.hidden=true;nextB.hidden=true;
+  ({pg:renderPG,tf:renderPG,match:renderMatch,order:renderOrder})[q.type](q);
+  head();
+}
+function startQuiz(){
+  res=Array(Q.length).fill(null);qi=0;
+  $('#qintro').hidden=true;$('#qend').hidden=true;$('#qplay').hidden=false;
+  render();
+}
+$('#qstart').onclick=startQuiz;
+$('#qagain').onclick=startQuiz;
+nextB.onclick=()=>{if(qi<Q.length-1){qi++;render();window.scrollTo({top:0,behavior:RM?'auto':'smooth'})}else showEnd()};
+function level(s){
+  const n=name();
+  if(s>=90)return['Juara Renang Emas',`Luar biasa, ${n}! Kamu menguasai aktivitas di kolam dan gerak gaya dada. Terus berlatih ya.`];
+  if(s>=70)return['Perenang Hebat',`Keren, ${n}! Sebagian besar jawabanmu tepat. Ulangi bagian yang masih ragu supaya makin lancar.`];
+  return['Calon Juara',`Tidak apa-apa, ${n}. Belajar renang butuh latihan. Buka materi lagi, coba gerakannya, lalu ulangi kuis. Kamu pasti bisa!`];
+}
+function topicsOf(){return[...new Set(Q.filter((_,k)=>res[k]===false).map(q=>q.topic))]}
+function showEnd(){
+  $('#qplay').hidden=true;$('#qend').hidden=false;
+  const s=score(),[t,m]=level(s);
+  $('#e-title').textContent=t;$('#e-msg').textContent=m;
+  $('#e-dots').innerHTML=Q.map((_,k)=>`<i class="${res[k]===true?'g':'n'}"></i>`).join('');
+  const tp=topicsOf();
+  $('#e-topics').innerHTML=tp.length?'<span class="tag">Perlu diulang:</span>'+tp.map(x=>`<span class="tag">${x}</span>`).join(''):'<span class="tag">Semua soal benar pada percobaan pertama</span>';
+  const el=$('#e-score');let v=0;
+  if(RM||s===0)el.textContent=s;
+  else{const iv=setInterval(()=>{v=Math.min(s,v+10);el.textContent=v;if(v>=s)clearInterval(iv)},60)}
+  if(s>=70)burst($('#e-title'));
+  window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+}
+
+/* ===== refleksi ===== */
+function updateReflect(){
+  const done=res.every(r=>r!==null)&&!$('#qend').hidden;
+  if(!done){
+    $('#r-title').textContent='Kerjakan kuis dulu ya';
+    $('#r-msg').textContent='Selesaikan kuis untuk melihat umpan balik dari perjalanan belajarmu.';
+    $('#r-topics').innerHTML='';return;
+  }
+  const s=score(),[t,m]=level(s);
+  $('#r-title').textContent=`${t}, skormu ${s}`;
+  $('#r-msg').textContent=m;
+  const tp=topicsOf();
+  $('#r-topics').innerHTML=tp.length?'<span class="tag">Yang perlu diulang:</span>'+tp.map(x=>`<span class="tag">${x}</span>`).join(''):'<span class="tag">Tidak ada yang perlu diulang</span>';
+}
+$$('#can button').forEach(b=>b.onclick=()=>{
+  b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');
+  const c=$$('#can button[aria-pressed=true]').length;
+  $('#can-msg').textContent=c===0?'Ketuk yang sudah kamu kuasai.':c===4?`Hebat, ${name()}! Kamu sudah menguasai keempatnya.`:`Kamu sudah menguasai ${c} dari 4. Yang lain pasti segera bisa!`;
+  if(c===4)burst(b);
+});
+const FM={a:'Senang itu bagus! Terus berlatih dan ajak temanmu belajar bersama.',b:'Tidak apa-apa. Coba ulangi latihan gerak di darat supaya makin yakin.',c:'Tidak apa-apa, itu wajar. Buka materi lagi atau tanyakan pada gurumu. Kamu pasti bisa!'};
+$$('#faces .face').forEach(b=>b.onclick=()=>{
+  $$('#faces .face').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('#face-msg').textContent=FM[b.dataset.m];
+});
+
+/* mulai */
+heroSw=Swimmer($('#h-sw'),i=>{$('#h-cue').textContent=PH[i].cue});
+show(0);
+})();
+</script>
+
+</body></html>
